@@ -8,6 +8,10 @@
 
 # 2. Business Assumptions.
 
+Invoices with negative prices as devolutions or canceled purchases
+unit_price equa to zero are gifts
+invoice_no with C are change backs
+
 # 3. Solution Strategy
 
 My strategy to solve this challenge was:
