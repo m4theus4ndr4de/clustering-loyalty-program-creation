@@ -1,0 +1,3060 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "33b398d9",
+   "metadata": {
+    "papermill": {
+     "duration": 0.033103,
+     "end_time": "2022-11-26T23:17:10.180178",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:10.147075",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "# 1. Imports"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "ca03b672",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2022-11-26T23:17:10.210020Z",
+     "iopub.status.busy": "2022-11-26T23:17:10.209494Z",
+     "iopub.status.idle": "2022-11-26T23:17:14.864128Z",
+     "shell.execute_reply": "2022-11-26T23:17:14.863595Z"
+    },
+    "papermill": {
+     "duration": 4.667559,
+     "end_time": "2022-11-26T23:17:14.865391",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:10.197832",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "import numpy as np\n",
+    "import regex as re\n",
+    "import pandas as pd\n",
+    "import seaborn as sns\n",
+    "import umap.umap_ as umap\n",
+    "\n",
+    "from sklearn import metrics\n",
+    "from datetime import datetime\n",
+    "from matplotlib import cm\n",
+    "from sqlalchemy import create_engine\n",
+    "\n",
+    "from sklearn import cluster as c\n",
+    "from sklearn import mixture as mx\n",
+    "from sklearn import ensemble as en\n",
+    "from sklearn import manifold as mn\n",
+    "from sklearn import preprocessing as pp\n",
+    "from sklearn import decomposition as dd\n",
+    "from matplotlib import pyplot as plt\n",
+    "from scipy.cluster import hierarchy as hc"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "33b44248",
+   "metadata": {
+    "papermill": {
+     "duration": 0.006331,
+     "end_time": "2022-11-26T23:17:14.879458",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:14.873127",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "## 1.2. Load Dataset"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "8a71439e",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2022-11-26T23:17:14.894580Z",
+     "iopub.status.busy": "2022-11-26T23:17:14.894229Z",
+     "iopub.status.idle": "2022-11-26T23:17:14.897616Z",
+     "shell.execute_reply": "2022-11-26T23:17:14.897009Z"
+    },
+    "papermill": {
+     "duration": 0.013315,
+     "end_time": "2022-11-26T23:17:14.899212",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:14.885897",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "path = '/home/matheusandrade/Documents/repos/clustering-loyalty-program-creation/'"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "2b613d25",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2022-11-26T23:17:14.918607Z",
+     "iopub.status.busy": "2022-11-26T23:17:14.918322Z",
+     "iopub.status.idle": "2022-11-26T23:17:15.477753Z",
+     "shell.execute_reply": "2022-11-26T23:17:15.477221Z"
+    },
+    "papermill": {
+     "duration": 0.568623,
+     "end_time": "2022-11-26T23:17:15.479032",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:14.910409",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "df_raw = pd.read_csv(path + 'data/Ecommerce.csv', encoding='unicode_escape')\n",
+    "\n",
+    "df_raw.drop(columns=['Unnamed: 8'], inplace=True)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c2888f43",
+   "metadata": {
+    "papermill": {
+     "duration": 0.006498,
+     "end_time": "2022-11-26T23:17:15.513895",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:15.507397",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "# 2. Data Description"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "id": "797c00d7",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2022-11-26T23:17:15.529043Z",
+     "iopub.status.busy": "2022-11-26T23:17:15.528487Z",
+     "iopub.status.idle": "2022-11-26T23:17:15.559569Z",
+     "shell.execute_reply": "2022-11-26T23:17:15.558853Z"
+    },
+    "papermill": {
+     "duration": 0.040399,
+     "end_time": "2022-11-26T23:17:15.560833",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:15.520434",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "df1 = df_raw.copy()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "69fcc17d",
+   "metadata": {
+    "papermill": {
+     "duration": 0.006238,
+     "end_time": "2022-11-26T23:17:15.573079",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:15.566841",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "## 2.1. Rename Columns"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "id": "57a7f07a",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2022-11-26T23:17:15.585944Z",
+     "iopub.status.busy": "2022-11-26T23:17:15.585753Z",
+     "iopub.status.idle": "2022-11-26T23:17:15.588648Z",
+     "shell.execute_reply": "2022-11-26T23:17:15.588262Z"
+    },
+    "papermill": {
+     "duration": 0.010707,
+     "end_time": "2022-11-26T23:17:15.589705",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:15.578998",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "cols_new = ['invoice_no', 'stock_code', 'description', 'quantity', 'invoice_date', 'unit_price', 'customer_id', 'country']\n",
+    "\n",
+    "df1.columns = cols_new"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a814bfbd",
+   "metadata": {
+    "papermill": {
+     "duration": 0.005925,
+     "end_time": "2022-11-26T23:17:15.601742",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:15.595817",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "## 2.2. Data Dimension"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "id": "8f57f0e0",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2022-11-26T23:17:15.615728Z",
+     "iopub.status.busy": "2022-11-26T23:17:15.615328Z",
+     "iopub.status.idle": "2022-11-26T23:17:15.618619Z",
+     "shell.execute_reply": "2022-11-26T23:17:15.618140Z"
+    },
+    "papermill": {
+     "duration": 0.011707,
+     "end_time": "2022-11-26T23:17:15.619717",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:15.608010",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Number of Rows: 541909\n",
+      "Number of Cols: 8\n"
+     ]
+    }
+   ],
+   "source": [
+    "print('Number of Rows: {}'.format(df1.shape[0]))\n",
+    "print('Number of Cols: {}'.format(df1.shape[1]))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4d299c2c",
+   "metadata": {
+    "papermill": {
+     "duration": 0.010502,
+     "end_time": "2022-11-26T23:17:15.639559",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:15.629057",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "## 2.3. Check NA"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "id": "d01c00be",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2022-11-26T23:17:15.656214Z",
+     "iopub.status.busy": "2022-11-26T23:17:15.655818Z",
+     "iopub.status.idle": "2022-11-26T23:17:15.880153Z",
+     "shell.execute_reply": "2022-11-26T23:17:15.879703Z"
+    },
+    "papermill": {
+     "duration": 0.232464,
+     "end_time": "2022-11-26T23:17:15.881221",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:15.648757",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "invoice_no           0\n",
+       "stock_code           0\n",
+       "description       1454\n",
+       "quantity             0\n",
+       "invoice_date         0\n",
+       "unit_price           0\n",
+       "customer_id     135080\n",
+       "country              0\n",
+       "dtype: int64"
+      ]
+     },
+     "execution_count": 7,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df1.isna().sum()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8f61eee4",
+   "metadata": {
+    "papermill": {
+     "duration": 0.006393,
+     "end_time": "2022-11-26T23:17:15.893948",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:15.887555",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "## 2.4. Replace NA"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "id": "3bc0fa67",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2022-11-26T23:17:15.907812Z",
+     "iopub.status.busy": "2022-11-26T23:17:15.907628Z",
+     "iopub.status.idle": "2022-11-26T23:17:15.956651Z",
+     "shell.execute_reply": "2022-11-26T23:17:15.956143Z"
+    },
+    "papermill": {
+     "duration": 0.057937,
+     "end_time": "2022-11-26T23:17:15.958260",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:15.900323",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "df_missing = df1.loc[df1['customer_id'].isna(), :]\n",
+    "df_not_missing = df1.loc[~df1['customer_id'].isna(), :]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "id": "b520b0fc",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2022-11-26T23:17:15.973375Z",
+     "iopub.status.busy": "2022-11-26T23:17:15.972813Z",
+     "iopub.status.idle": "2022-11-26T23:17:16.176177Z",
+     "shell.execute_reply": "2022-11-26T23:17:16.175591Z"
+    },
+    "papermill": {
+     "duration": 0.212284,
+     "end_time": "2022-11-26T23:17:16.177418",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:15.965134",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "# create reference\n",
+    "df_backup = pd.DataFrame(df_missing['invoice_no'].drop_duplicates())\n",
+    "df_backup['customer_id'] = np.arange(19000, 19000+len(df_backup), 1)\n",
+    "\n",
+    "# merge original with reference dataframe\n",
+    "df1 = pd.merge(df1, df_backup, on='invoice_no', how='left')\n",
+    "\n",
+    "# coalesce \n",
+    "df1['customer_id'] = df1['customer_id_x'].combine_first( df1['customer_id_y'])\n",
+    "\n",
+    "# drop extra columns\n",
+    "df1 = df1.drop(columns=['customer_id_x', 'customer_id_y'], axis=1)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "id": "d9519c3c",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2022-11-26T23:17:16.192021Z",
+     "iopub.status.busy": "2022-11-26T23:17:16.191667Z",
+     "iopub.status.idle": "2022-11-26T23:17:16.420410Z",
+     "shell.execute_reply": "2022-11-26T23:17:16.419899Z"
+    },
+    "papermill": {
+     "duration": 0.237646,
+     "end_time": "2022-11-26T23:17:16.421467",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:16.183821",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "invoice_no         0\n",
+       "stock_code         0\n",
+       "description     1454\n",
+       "quantity           0\n",
+       "invoice_date       0\n",
+       "unit_price         0\n",
+       "country            0\n",
+       "customer_id        0\n",
+       "dtype: int64"
+      ]
+     },
+     "execution_count": 10,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df1.isna().sum()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e34c2453",
+   "metadata": {
+    "papermill": {
+     "duration": 0.006296,
+     "end_time": "2022-11-26T23:17:16.434327",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:16.428031",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "## 2.6. Check Data Types"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "id": "3032aa54",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2022-11-26T23:17:16.448637Z",
+     "iopub.status.busy": "2022-11-26T23:17:16.448194Z",
+     "iopub.status.idle": "2022-11-26T23:17:16.452197Z",
+     "shell.execute_reply": "2022-11-26T23:17:16.451832Z"
+    },
+    "papermill": {
+     "duration": 0.012474,
+     "end_time": "2022-11-26T23:17:16.453277",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:16.440803",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "invoice_no       object\n",
+       "stock_code       object\n",
+       "description      object\n",
+       "quantity          int64\n",
+       "invoice_date     object\n",
+       "unit_price      float64\n",
+       "country          object\n",
+       "customer_id     float64\n",
+       "dtype: object"
+      ]
+     },
+     "execution_count": 11,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df1.dtypes"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "85f7ad9b",
+   "metadata": {
+    "papermill": {
+     "duration": 0.011641,
+     "end_time": "2022-11-26T23:17:16.471696",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:16.460055",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "## 2.4. Change Data Types"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "id": "54fc84aa",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2022-11-26T23:17:16.486740Z",
+     "iopub.status.busy": "2022-11-26T23:17:16.486369Z",
+     "iopub.status.idle": "2022-11-26T23:17:16.528903Z",
+     "shell.execute_reply": "2022-11-26T23:17:16.528368Z"
+    },
+    "papermill": {
+     "duration": 0.05098,
+     "end_time": "2022-11-26T23:17:16.530117",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:16.479137",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "# invoice_date\n",
+    "df1['invoice_date'] = pd.to_datetime(df1['invoice_date'], format='%d-%b-%y')\n",
+    "\n",
+    "# customer_id\n",
+    "df1['customer_id'] = df1['customer_id'].astype(int)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "id": "70d331b5",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2022-11-26T23:17:16.544309Z",
+     "iopub.status.busy": "2022-11-26T23:17:16.544112Z",
+     "iopub.status.idle": "2022-11-26T23:17:16.548196Z",
+     "shell.execute_reply": "2022-11-26T23:17:16.547823Z"
+    },
+    "papermill": {
+     "duration": 0.012611,
+     "end_time": "2022-11-26T23:17:16.549245",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:16.536634",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "invoice_no              object\n",
+       "stock_code              object\n",
+       "description             object\n",
+       "quantity                 int64\n",
+       "invoice_date    datetime64[ns]\n",
+       "unit_price             float64\n",
+       "country                 object\n",
+       "customer_id              int64\n",
+       "dtype: object"
+      ]
+     },
+     "execution_count": 13,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df1.dtypes"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b3b990cd",
+   "metadata": {
+    "papermill": {
+     "duration": 0.009125,
+     "end_time": "2022-11-26T23:17:16.565105",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:16.555980",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "## 2.7. Descriptive Statistics"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "id": "a9a0356a",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2022-11-26T23:17:16.583219Z",
+     "iopub.status.busy": "2022-11-26T23:17:16.583033Z",
+     "iopub.status.idle": "2022-11-26T23:17:16.627711Z",
+     "shell.execute_reply": "2022-11-26T23:17:16.627183Z"
+    },
+    "papermill": {
+     "duration": 0.053335,
+     "end_time": "2022-11-26T23:17:16.629038",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:16.575703",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "num_attributes = df1.select_dtypes(include=['int64', 'int32', 'float64'])\n",
+    "cat_attributes = df1.select_dtypes(exclude=['int64', 'float64', 'datetime64[ns]'])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f76195b5",
+   "metadata": {
+    "papermill": {
+     "duration": 0.006642,
+     "end_time": "2022-11-26T23:17:16.642487",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:16.635845",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "### 2.7.1. Numerical Attributes"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "id": "23c74bf3",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2022-11-26T23:17:16.656403Z",
+     "iopub.status.busy": "2022-11-26T23:17:16.656157Z",
+     "iopub.status.idle": "2022-11-26T23:17:16.663449Z",
+     "shell.execute_reply": "2022-11-26T23:17:16.662946Z"
+    },
+    "papermill": {
+     "duration": 0.015635,
+     "end_time": "2022-11-26T23:17:16.664509",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:16.648874",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>quantity</th>\n",
+       "      <th>unit_price</th>\n",
+       "      <th>customer_id</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>6</td>\n",
+       "      <td>2.55</td>\n",
+       "      <td>17850</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>6</td>\n",
+       "      <td>3.39</td>\n",
+       "      <td>17850</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>8</td>\n",
+       "      <td>2.75</td>\n",
+       "      <td>17850</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>6</td>\n",
+       "      <td>3.39</td>\n",
+       "      <td>17850</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>6</td>\n",
+       "      <td>3.39</td>\n",
+       "      <td>17850</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "   quantity  unit_price  customer_id\n",
+       "0         6        2.55        17850\n",
+       "1         6        3.39        17850\n",
+       "2         8        2.75        17850\n",
+       "3         6        3.39        17850\n",
+       "4         6        3.39        17850"
+      ]
+     },
+     "execution_count": 15,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "num_attributes.head()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "id": "91b51916",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2022-11-26T23:17:16.682049Z",
+     "iopub.status.busy": "2022-11-26T23:17:16.681596Z",
+     "iopub.status.idle": "2022-11-26T23:17:16.923589Z",
+     "shell.execute_reply": "2022-11-26T23:17:16.923204Z"
+    },
+    "papermill": {
+     "duration": 0.253183,
+     "end_time": "2022-11-26T23:17:16.924587",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:16.671404",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>attributes</th>\n",
+       "      <th>min</th>\n",
+       "      <th>max</th>\n",
+       "      <th>range</th>\n",
+       "      <th>mean</th>\n",
+       "      <th>median</th>\n",
+       "      <th>std</th>\n",
+       "      <th>skew</th>\n",
+       "      <th>kurtosis</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>quantity</td>\n",
+       "      <td>-80995.00</td>\n",
+       "      <td>80995.0</td>\n",
+       "      <td>161990.00</td>\n",
+       "      <td>9.552250</td>\n",
+       "      <td>3.00</td>\n",
+       "      <td>218.080957</td>\n",
+       "      <td>-0.264076</td>\n",
+       "      <td>119769.160031</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>unit_price</td>\n",
+       "      <td>-11062.06</td>\n",
+       "      <td>38970.0</td>\n",
+       "      <td>50032.06</td>\n",
+       "      <td>4.611114</td>\n",
+       "      <td>2.08</td>\n",
+       "      <td>96.759764</td>\n",
+       "      <td>186.506972</td>\n",
+       "      <td>59005.719097</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>customer_id</td>\n",
+       "      <td>12346.00</td>\n",
+       "      <td>22709.0</td>\n",
+       "      <td>10363.00</td>\n",
+       "      <td>16688.840453</td>\n",
+       "      <td>16249.00</td>\n",
+       "      <td>2911.408666</td>\n",
+       "      <td>0.487449</td>\n",
+       "      <td>-0.804287</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "    attributes       min      max      range          mean    median  \\\n",
+       "0     quantity -80995.00  80995.0  161990.00      9.552250      3.00   \n",
+       "1   unit_price -11062.06  38970.0   50032.06      4.611114      2.08   \n",
+       "2  customer_id  12346.00  22709.0   10363.00  16688.840453  16249.00   \n",
+       "\n",
+       "           std        skew       kurtosis  \n",
+       "0   218.080957   -0.264076  119769.160031  \n",
+       "1    96.759764  186.506972   59005.719097  \n",
+       "2  2911.408666    0.487449      -0.804287  "
+      ]
+     },
+     "execution_count": 16,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# Central Tendency: mean, median\n",
+    "ct1 = pd.DataFrame(num_attributes.apply(np.mean)).T\n",
+    "ct2 = pd.DataFrame(num_attributes.apply(np.median)).T\n",
+    "\n",
+    "# Dispersion: std, min, max, range, skew, kurtosis\n",
+    "d1 = pd.DataFrame(num_attributes.apply(np.std)).T\n",
+    "d2 = pd.DataFrame(num_attributes.apply(min)).T\n",
+    "d3 = pd.DataFrame(num_attributes.apply(max)).T\n",
+    "d4 = pd.DataFrame(num_attributes.apply(lambda x: x.max() - x.min())).T\n",
+    "d5 = pd.DataFrame(num_attributes.apply(lambda x: x.skew())).T\n",
+    "d6 = pd.DataFrame(num_attributes.apply(lambda x: x.kurtosis())).T\n",
+    "\n",
+    "# concatenate\n",
+    "m = pd.concat([d2, d3, d4, ct1, ct2, d1, d5, d6]).T.reset_index()\n",
+    "m.columns = ['attributes', 'min', 'max', 'range', 'mean', 'median', 'std', 'skew', 'kurtosis']\n",
+    "m"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d5e17fe7",
+   "metadata": {
+    "papermill": {
+     "duration": 0.006835,
+     "end_time": "2022-11-26T23:17:16.938187",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:16.931352",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "1. Quantity with negative value;\n",
+    "\n",
+    "2. Unit price equal to zero."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "75b36fa3",
+   "metadata": {
+    "papermill": {
+     "duration": 0.006674,
+     "end_time": "2022-11-26T23:17:16.951511",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:16.944837",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "### 2.7.2. Categorical Attributes"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "id": "8b8c0ba3",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2022-11-26T23:17:16.970068Z",
+     "iopub.status.busy": "2022-11-26T23:17:16.969655Z",
+     "iopub.status.idle": "2022-11-26T23:17:16.978182Z",
+     "shell.execute_reply": "2022-11-26T23:17:16.977700Z"
+    },
+    "papermill": {
+     "duration": 0.021021,
+     "end_time": "2022-11-26T23:17:16.979529",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:16.958508",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>invoice_no</th>\n",
+       "      <th>stock_code</th>\n",
+       "      <th>description</th>\n",
+       "      <th>country</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>536365</td>\n",
+       "      <td>85123A</td>\n",
+       "      <td>WHITE HANGING HEART T-LIGHT HOLDER</td>\n",
+       "      <td>United Kingdom</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>536365</td>\n",
+       "      <td>71053</td>\n",
+       "      <td>WHITE METAL LANTERN</td>\n",
+       "      <td>United Kingdom</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>536365</td>\n",
+       "      <td>84406B</td>\n",
+       "      <td>CREAM CUPID HEARTS COAT HANGER</td>\n",
+       "      <td>United Kingdom</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>536365</td>\n",
+       "      <td>84029G</td>\n",
+       "      <td>KNITTED UNION FLAG HOT WATER BOTTLE</td>\n",
+       "      <td>United Kingdom</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>536365</td>\n",
+       "      <td>84029E</td>\n",
+       "      <td>RED WOOLLY HOTTIE WHITE HEART.</td>\n",
+       "      <td>United Kingdom</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "  invoice_no stock_code                          description         country\n",
+       "0     536365     85123A   WHITE HANGING HEART T-LIGHT HOLDER  United Kingdom\n",
+       "1     536365      71053                  WHITE METAL LANTERN  United Kingdom\n",
+       "2     536365     84406B       CREAM CUPID HEARTS COAT HANGER  United Kingdom\n",
+       "3     536365     84029G  KNITTED UNION FLAG HOT WATER BOTTLE  United Kingdom\n",
+       "4     536365     84029E       RED WOOLLY HOTTIE WHITE HEART.  United Kingdom"
+      ]
+     },
+     "execution_count": 17,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "cat_attributes.head()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 18,
+   "id": "8b907ba2",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2022-11-26T23:17:16.995025Z",
+     "iopub.status.busy": "2022-11-26T23:17:16.994838Z",
+     "iopub.status.idle": "2022-11-26T23:17:19.474204Z",
+     "shell.execute_reply": "2022-11-26T23:17:19.473717Z"
+    },
+    "papermill": {
+     "duration": 2.488867,
+     "end_time": "2022-11-26T23:17:19.475545",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:16.986678",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Total number of invoices with letters: 9291\n",
+      "Total number of negative quantities with letter in the invoice: 9288\n"
+     ]
+    }
+   ],
+   "source": [
+    "# invoice_no\n",
+    "df_letter_invoices = df1.loc[df1['invoice_no'].apply(lambda x: bool(re.search('[^0-9]+', x))), :]\n",
+    "\n",
+    "print('Total number of invoices with letters: {}'.format(len(df_letter_invoices)))\n",
+    "\n",
+    "print('Total number of negative quantities with letter in the invoice: {}'.format(len(df_letter_invoices[df_letter_invoices['quantity']< 0])))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 19,
+   "id": "8d0aca08",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2022-11-26T23:17:19.491851Z",
+     "iopub.status.busy": "2022-11-26T23:17:19.491290Z",
+     "iopub.status.idle": "2022-11-26T23:17:24.504697Z",
+     "shell.execute_reply": "2022-11-26T23:17:24.504167Z"
+    },
+    "papermill": {
+     "duration": 5.022569,
+     "end_time": "2022-11-26T23:17:24.505740",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:19.483171",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Number of stock codes with at least one letter: 1124\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "List of stock codes composed only by letters: ['POST' 'D' 'DOT' 'M' 'S' 'AMAZONFEE' 'm' 'DCGSSBOY' 'DCGSSGIRL' 'PADS'\n",
+      " 'B' 'CRUK']\n"
+     ]
+    }
+   ],
+   "source": [
+    "# stock_code\n",
+    "print('Number of stock codes with at least one letter: {}'.format(len(cat_attributes.loc[cat_attributes['stock_code'].apply(lambda x: bool(re.search('[^0-9]+', x))), 'stock_code'].drop_duplicates())))\n",
+    "\n",
+    "print('List of stock codes composed only by letters: {}'.format(df1.loc[df1['stock_code'].apply(lambda x: bool(re.search('^[a-zA-Z]+$', x))), 'stock_code'].unique()))\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 20,
+   "id": "f14ae474",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2022-11-26T23:17:24.524770Z",
+     "iopub.status.busy": "2022-11-26T23:17:24.524520Z",
+     "iopub.status.idle": "2022-11-26T23:17:24.571010Z",
+     "shell.execute_reply": "2022-11-26T23:17:24.570491Z"
+    },
+    "papermill": {
+     "duration": 0.059141,
+     "end_time": "2022-11-26T23:17:24.572038",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:24.512897",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Number of countries in the database: 38\n",
+      "\n",
+      "Some of these countries: \n",
+      "United Kingdom    0.914320\n",
+      "Germany           0.017521\n",
+      "France            0.015790\n",
+      "EIRE              0.015124\n",
+      "Spain             0.004674\n",
+      "Netherlands       0.004375\n",
+      "Belgium           0.003818\n",
+      "Switzerland       0.003694\n",
+      "Portugal          0.002803\n",
+      "Australia         0.002323\n",
+      "Name: country, dtype: float64\n"
+     ]
+    }
+   ],
+   "source": [
+    "# country\n",
+    "print('Number of countries in the database: {}'.format(len(df1['country'].unique())))\n",
+    "print('\\nSome of these countries: \\n{}'.format(df1['country'].value_counts(normalize=True).head(10)))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a6306569",
+   "metadata": {
+    "papermill": {
+     "duration": 0.007024,
+     "end_time": "2022-11-26T23:17:24.586530",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:24.579506",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "# 3. Variable Filtering"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 21,
+   "id": "ecf0dd40",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2022-11-26T23:17:24.601331Z",
+     "iopub.status.busy": "2022-11-26T23:17:24.601145Z",
+     "iopub.status.idle": "2022-11-26T23:17:24.611605Z",
+     "shell.execute_reply": "2022-11-26T23:17:24.611017Z"
+    },
+    "papermill": {
+     "duration": 0.019394,
+     "end_time": "2022-11-26T23:17:24.612832",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:24.593438",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "df2 = df1.copy()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 22,
+   "id": "2d9a9133",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2022-11-26T23:17:24.633080Z",
+     "iopub.status.busy": "2022-11-26T23:17:24.632753Z",
+     "iopub.status.idle": "2022-11-26T23:17:24.795793Z",
+     "shell.execute_reply": "2022-11-26T23:17:24.795177Z"
+    },
+    "papermill": {
+     "duration": 0.176826,
+     "end_time": "2022-11-26T23:17:24.797003",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:24.620177",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "# unit price\n",
+    "df2 = df2.loc[df2['unit_price'] > 0.04, :]\n",
+    "\n",
+    "# stock_code\n",
+    "df2 = df2[~df2['stock_code'].isin(['POST', 'D', 'DOT', 'M', 'S', 'AMAZONFEE', 'm', 'DCGSSBOY', 'DCGSSGIRL', 'PADS', 'B', 'CRUK'])]\n",
+    "\n",
+    "# description\n",
+    "df2 = df2.drop(columns='description', axis=1)\n",
+    "\n",
+    "# map\n",
+    "df2 = df2[~df2['country'].isin(['European Community', 'Unspecified'])]\n",
+    "\n",
+    "# bad users\n",
+    "df2 = df2[~df2['customer_id'].isin( [16446] )]\n",
+    "\n",
+    "# quantity\n",
+    "df2_returns = df2.loc[df2['quantity'] < 0, :]\n",
+    "df2_purchases = df2.loc[df2['quantity'] >= 0, :]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "14a36453",
+   "metadata": {
+    "papermill": {
+     "duration": 0.010275,
+     "end_time": "2022-11-26T23:17:24.814344",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:24.804069",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "# 4. Feature Engineering"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 23,
+   "id": "7feec3ab",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2022-11-26T23:17:24.834818Z",
+     "iopub.status.busy": "2022-11-26T23:17:24.834496Z",
+     "iopub.status.idle": "2022-11-26T23:17:24.863742Z",
+     "shell.execute_reply": "2022-11-26T23:17:24.863167Z"
+    },
+    "papermill": {
+     "duration": 0.043669,
+     "end_time": "2022-11-26T23:17:24.865002",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:24.821333",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "df3 = df2.copy()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "24577047",
+   "metadata": {
+    "papermill": {
+     "duration": 0.007128,
+     "end_time": "2022-11-26T23:17:24.879367",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:24.872239",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "## 4.1. Feature Creation"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 24,
+   "id": "292048c4",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2022-11-26T23:17:24.894415Z",
+     "iopub.status.busy": "2022-11-26T23:17:24.894229Z",
+     "iopub.status.idle": "2022-11-26T23:17:24.905679Z",
+     "shell.execute_reply": "2022-11-26T23:17:24.905151Z"
+    },
+    "papermill": {
+     "duration": 0.020528,
+     "end_time": "2022-11-26T23:17:24.906953",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:24.886425",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "# data reference\n",
+    "df_ref = df3.drop(['invoice_no', 'stock_code', 'quantity', 'invoice_date', 'unit_price', 'country'], axis=1)\n",
+    "df_ref = df_ref.drop_duplicates(ignore_index=True)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c64b8325",
+   "metadata": {
+    "papermill": {
+     "duration": 0.007017,
+     "end_time": "2022-11-26T23:17:24.921157",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:24.914140",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "### 4.1.1. Gross Revenue"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 25,
+   "id": "5d024dbe",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2022-11-26T23:17:24.942116Z",
+     "iopub.status.busy": "2022-11-26T23:17:24.941639Z",
+     "iopub.status.idle": "2022-11-26T23:17:24.981837Z",
+     "shell.execute_reply": "2022-11-26T23:17:24.981250Z"
+    },
+    "papermill": {
+     "duration": 0.054499,
+     "end_time": "2022-11-26T23:17:24.982947",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:24.928448",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "/tmp/ipykernel_256061/1551767982.py:2: SettingWithCopyWarning: \n",
+      "A value is trying to be set on a copy of a slice from a DataFrame.\n",
+      "Try using .loc[row_indexer,col_indexer] = value instead\n",
+      "\n",
+      "See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy\n",
+      "  df2_purchases.loc[:, 'gross_revenue'] = df2_purchases.loc[:, 'quantity'] * df2_purchases.loc[:, 'unit_price']\n"
+     ]
+    }
+   ],
+   "source": [
+    "# gross revenue (profit) quantity * price\n",
+    "df2_purchases.loc[:, 'gross_revenue'] = df2_purchases.loc[:, 'quantity'] * df2_purchases.loc[:, 'unit_price']\n",
+    "\n",
+    "# monetary\n",
+    "df_monetary = df2_purchases[['customer_id', 'gross_revenue']].groupby('customer_id').sum().reset_index()\n",
+    "df_ref = pd.merge(df_ref, df_monetary, on='customer_id', how='left')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "126f7a7d",
+   "metadata": {
+    "papermill": {
+     "duration": 0.007295,
+     "end_time": "2022-11-26T23:17:24.997915",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:24.990620",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "### 4.1.2. Recency"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 26,
+   "id": "66f04bfe",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2022-11-26T23:17:25.012961Z",
+     "iopub.status.busy": "2022-11-26T23:17:25.012774Z",
+     "iopub.status.idle": "2022-11-26T23:17:25.030078Z",
+     "shell.execute_reply": "2022-11-26T23:17:25.029560Z"
+    },
+    "papermill": {
+     "duration": 0.026285,
+     "end_time": "2022-11-26T23:17:25.031278",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:25.004993",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "df_recency = df2_purchases.loc[:, ['customer_id', 'invoice_date']].groupby('customer_id').max().reset_index()\n",
+    "df_recency['recency_days'] = (df2['invoice_date'].max() - df_recency['invoice_date']).dt.days\n",
+    "df_recency = df_recency.loc[:, ['customer_id', 'recency_days']].copy()\n",
+    "df_ref = pd.merge(df_ref, df_recency, on='customer_id', how='left')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e386a5f2",
+   "metadata": {
+    "papermill": {
+     "duration": 0.011488,
+     "end_time": "2022-11-26T23:17:25.050148",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:25.038660",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "### 4.1.5. Quantity of Products Purchased"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 27,
+   "id": "163945a4",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2022-11-26T23:17:25.068409Z",
+     "iopub.status.busy": "2022-11-26T23:17:25.068209Z",
+     "iopub.status.idle": "2022-11-26T23:17:25.127408Z",
+     "shell.execute_reply": "2022-11-26T23:17:25.126883Z"
+    },
+    "papermill": {
+     "duration": 0.068476,
+     "end_time": "2022-11-26T23:17:25.128651",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:25.060175",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "df_freq = df2_purchases.loc[:, ['customer_id', 'stock_code']].groupby('customer_id').count().reset_index().rename(columns={'stock_code': 'q_products'})\n",
+    "df_ref = pd.merge(df_ref, df_freq, on='customer_id', how='left')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b3023df7",
+   "metadata": {
+    "papermill": {
+     "duration": 0.007282,
+     "end_time": "2022-11-26T23:17:25.143361",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:25.136079",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "### 4.1.8. Frequency"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 28,
+   "id": "a0f55e47",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2022-11-26T23:17:25.165253Z",
+     "iopub.status.busy": "2022-11-26T23:17:25.164761Z",
+     "iopub.status.idle": "2022-11-26T23:17:26.014980Z",
+     "shell.execute_reply": "2022-11-26T23:17:26.013362Z"
+    },
+    "papermill": {
+     "duration": 0.867648,
+     "end_time": "2022-11-26T23:17:26.018511",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:25.150863",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "df_aux = (df2_purchases[['customer_id', 'invoice_no', 'invoice_date']].drop_duplicates()\n",
+    "                                                            .groupby('customer_id')\n",
+    "                                                            .agg(max_ = ( 'invoice_date', 'max'), \n",
+    "                                                                 min_ = ( 'invoice_date', 'min'),\n",
+    "                                                                 days_= ( 'invoice_date', lambda x: ((x.max() - x.min()).days) + 1),\n",
+    "                                                                 buy_ = ( 'invoice_no', 'count'))).reset_index()\n",
+    "\n",
+    "df_aux['frequency'] = df_aux[['buy_', 'days_']].apply(lambda x: x['buy_'] / x['days_'] if  x['days_'] != 0 else 0, axis=1)\n",
+    "df_ref = pd.merge( df_ref, df_aux[['customer_id', 'frequency']], on='customer_id', how='left')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f16e0de2",
+   "metadata": {
+    "papermill": {
+     "duration": 0.013586,
+     "end_time": "2022-11-26T23:17:26.047572",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:26.033986",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "### 4.1.9. Returns"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 29,
+   "id": "cfff1c5f",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2022-11-26T23:17:26.066151Z",
+     "iopub.status.busy": "2022-11-26T23:17:26.065965Z",
+     "iopub.status.idle": "2022-11-26T23:17:26.074355Z",
+     "shell.execute_reply": "2022-11-26T23:17:26.073847Z"
+    },
+    "papermill": {
+     "duration": 0.018127,
+     "end_time": "2022-11-26T23:17:26.075450",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:26.057323",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "df_returns = df2_returns[['customer_id', 'quantity']].groupby('customer_id').sum().reset_index().rename(columns={'quantity':'q_returns'})\n",
+    "df_returns['q_returns'] = df_returns['q_returns'] * -1\n",
+    "\n",
+    "df_ref = pd.merge(df_ref, df_returns, how='left', on='customer_id')\n",
+    "df_ref.loc[df_ref['q_returns'].isna(), 'q_returns'] = 0\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ecbd4411",
+   "metadata": {
+    "papermill": {
+     "duration": 0.012431,
+     "end_time": "2022-11-26T23:17:26.095846",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:26.083415",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "## 4.2. Check Dataframe"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 30,
+   "id": "ee177634",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2022-11-26T23:17:26.113943Z",
+     "iopub.status.busy": "2022-11-26T23:17:26.113729Z",
+     "iopub.status.idle": "2022-11-26T23:17:26.118419Z",
+     "shell.execute_reply": "2022-11-26T23:17:26.118067Z"
+    },
+    "papermill": {
+     "duration": 0.014098,
+     "end_time": "2022-11-26T23:17:26.119417",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:26.105319",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "customer_id       0\n",
+       "gross_revenue    91\n",
+       "recency_days     91\n",
+       "q_products       91\n",
+       "frequency        91\n",
+       "q_returns         0\n",
+       "dtype: int64"
+      ]
+     },
+     "execution_count": 30,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# check na\n",
+    "df_ref.isna().sum()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 31,
+   "id": "c8e1e2ba",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2022-11-26T23:17:26.135294Z",
+     "iopub.status.busy": "2022-11-26T23:17:26.135082Z",
+     "iopub.status.idle": "2022-11-26T23:17:26.142378Z",
+     "shell.execute_reply": "2022-11-26T23:17:26.142022Z"
+    },
+    "papermill": {
+     "duration": 0.016395,
+     "end_time": "2022-11-26T23:17:26.143369",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:26.126974",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>customer_id</th>\n",
+       "      <th>gross_revenue</th>\n",
+       "      <th>recency_days</th>\n",
+       "      <th>q_products</th>\n",
+       "      <th>frequency</th>\n",
+       "      <th>q_returns</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>17850</td>\n",
+       "      <td>5391.21</td>\n",
+       "      <td>372.0</td>\n",
+       "      <td>297.0</td>\n",
+       "      <td>17.000000</td>\n",
+       "      <td>40.0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>13047</td>\n",
+       "      <td>3232.59</td>\n",
+       "      <td>56.0</td>\n",
+       "      <td>171.0</td>\n",
+       "      <td>0.028302</td>\n",
+       "      <td>35.0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>12583</td>\n",
+       "      <td>6705.38</td>\n",
+       "      <td>2.0</td>\n",
+       "      <td>232.0</td>\n",
+       "      <td>0.040323</td>\n",
+       "      <td>50.0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>13748</td>\n",
+       "      <td>948.25</td>\n",
+       "      <td>95.0</td>\n",
+       "      <td>28.0</td>\n",
+       "      <td>0.017921</td>\n",
+       "      <td>0.0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>15100</td>\n",
+       "      <td>876.00</td>\n",
+       "      <td>333.0</td>\n",
+       "      <td>3.0</td>\n",
+       "      <td>0.073171</td>\n",
+       "      <td>22.0</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "   customer_id  gross_revenue  recency_days  q_products  frequency  q_returns\n",
+       "0        17850        5391.21         372.0       297.0  17.000000       40.0\n",
+       "1        13047        3232.59          56.0       171.0   0.028302       35.0\n",
+       "2        12583        6705.38           2.0       232.0   0.040323       50.0\n",
+       "3        13748         948.25          95.0        28.0   0.017921        0.0\n",
+       "4        15100         876.00         333.0         3.0   0.073171       22.0"
+      ]
+     },
+     "execution_count": 31,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df_ref.head()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7009591f",
+   "metadata": {
+    "papermill": {
+     "duration": 0.00746,
+     "end_time": "2022-11-26T23:17:26.158587",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:26.151127",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "# 5. EDA (Exploratory Data Analysis)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 32,
+   "id": "4fa3a3c1",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2022-11-26T23:17:26.174852Z",
+     "iopub.status.busy": "2022-11-26T23:17:26.174573Z",
+     "iopub.status.idle": "2022-11-26T23:17:26.180763Z",
+     "shell.execute_reply": "2022-11-26T23:17:26.180301Z"
+    },
+    "papermill": {
+     "duration": 0.015583,
+     "end_time": "2022-11-26T23:17:26.181852",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:26.166269",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "customer_id      0\n",
+       "gross_revenue    0\n",
+       "recency_days     0\n",
+       "q_products       0\n",
+       "frequency        0\n",
+       "q_returns        0\n",
+       "dtype: int64"
+      ]
+     },
+     "execution_count": 32,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "cols_selected = ['customer_id', 'gross_revenue', 'recency_days', 'q_products', 'frequency', 'q_returns']\n",
+    "df_selected = df_ref[cols_selected].copy()\n",
+    "\n",
+    "df4 = df_selected.dropna().copy()\n",
+    "df4.isna().sum()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "862f6c79",
+   "metadata": {
+    "papermill": {
+     "duration": 0.01278,
+     "end_time": "2022-11-26T23:17:26.202567",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:26.189787",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "## 5.3. Space Study"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 33,
+   "id": "8b0e31b2",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2022-11-26T23:17:26.220194Z",
+     "iopub.status.busy": "2022-11-26T23:17:26.219997Z",
+     "iopub.status.idle": "2022-11-26T23:17:26.224136Z",
+     "shell.execute_reply": "2022-11-26T23:17:26.223658Z"
+    },
+    "papermill": {
+     "duration": 0.01379,
+     "end_time": "2022-11-26T23:17:26.225232",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:26.211442",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "# selected dataset\n",
+    "df4_3 = df4[cols_selected].drop(columns='customer_id', axis=1)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 34,
+   "id": "d194a8af",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2022-11-26T23:17:26.242362Z",
+     "iopub.status.busy": "2022-11-26T23:17:26.242088Z",
+     "iopub.status.idle": "2022-11-26T23:17:26.258619Z",
+     "shell.execute_reply": "2022-11-26T23:17:26.258145Z"
+    },
+    "papermill": {
+     "duration": 0.026668,
+     "end_time": "2022-11-26T23:17:26.259795",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:26.233127",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "mm = pp.MinMaxScaler()\n",
+    "\n",
+    "df4_3['gross_revenue'] = mm.fit_transform(df4_3[['gross_revenue']]) \n",
+    "df4_3['recency_days'] = mm.fit_transform(df4_3[['recency_days']]) \n",
+    "df4_3['q_products'] = mm.fit_transform(df4_3[['q_products']]) \n",
+    "df4_3['frequency'] = mm.fit_transform(df4_3[['frequency']]) \n",
+    "df4_3['q_returns'] = mm.fit_transform(df4_3[['q_returns']]) \n",
+    "\n",
+    "X = df4_3.copy()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b4a43a2c",
+   "metadata": {
+    "papermill": {
+     "duration": 0.007564,
+     "end_time": "2022-11-26T23:17:26.275143",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:26.267579",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "### 5.3.2. UMAP"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 35,
+   "id": "0fa50db3",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2022-11-26T23:17:26.291529Z",
+     "iopub.status.busy": "2022-11-26T23:17:26.291348Z",
+     "iopub.status.idle": "2022-11-26T23:17:48.682367Z",
+     "shell.execute_reply": "2022-11-26T23:17:48.681811Z"
+    },
+    "papermill": {
+     "duration": 22.401004,
+     "end_time": "2022-11-26T23:17:48.683704",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:26.282700",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "reducer = umap.UMAP(random_state=42)\n",
+    "embedding = reducer.fit_transform(X)\n",
+    "\n",
+    "# embedding\n",
+    "df_umap = pd.DataFrame()\n",
+    "df_umap['embedding_x'] = embedding[:, 0]\n",
+    "df_umap['embedding_y'] = embedding[:, 1]\n",
+    "\n",
+    "#sns.scatterplot(x='embedding_x', y='embedding_y', data=df_umap);"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5ee85f9c",
+   "metadata": {
+    "papermill": {
+     "duration": 0.007946,
+     "end_time": "2022-11-26T23:17:48.699768",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:48.691822",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "# 6. Data Preparation"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 36,
+   "id": "8564bb36",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2022-11-26T23:17:48.723223Z",
+     "iopub.status.busy": "2022-11-26T23:17:48.723028Z",
+     "iopub.status.idle": "2022-11-26T23:17:48.726523Z",
+     "shell.execute_reply": "2022-11-26T23:17:48.726014Z"
+    },
+    "papermill": {
+     "duration": 0.014364,
+     "end_time": "2022-11-26T23:17:48.727574",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:48.713210",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "df5 = df4_3.copy()\n",
+    "df5_aux = df4_3.copy()\n",
+    "\n",
+    "# umap embedding\n",
+    "df5_umap = df_umap.copy()\n",
+    "\n",
+    "# tsne embedding\n",
+    "#df5_tsne = df_tsne.copy()\n",
+    "\n",
+    "# tree embedding\n",
+    "#df5_tree = df_tree.copy()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 37,
+   "id": "b80cfa5a",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2022-11-26T23:17:48.745537Z",
+     "iopub.status.busy": "2022-11-26T23:17:48.745339Z",
+     "iopub.status.idle": "2022-11-26T23:17:48.760491Z",
+     "shell.execute_reply": "2022-11-26T23:17:48.759955Z"
+    },
+    "papermill": {
+     "duration": 0.02594,
+     "end_time": "2022-11-26T23:17:48.761687",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:48.735747",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "mm_gross_revenue = pp.MinMaxScaler()\n",
+    "mm_recency_days = pp.MinMaxScaler()\n",
+    "mm_q_products = pp.MinMaxScaler()\n",
+    "mm_frequency = pp.MinMaxScaler()\n",
+    "mm_q_returns = pp.MinMaxScaler()\n",
+    "\n",
+    "df5['gross_revenue'] = mm_gross_revenue.fit_transform( df5[['gross_revenue']] )\n",
+    "df5['recency_days'] = mm_recency_days.fit_transform( df5[['recency_days']] )\n",
+    "#df5['q_invoices'] = mm.fit_transform( df5[['q_invoices']] )\n",
+    "#df5['q_items'] = mm.fit_transform( df5[['q_items']] )\n",
+    "df5['q_products'] = mm_q_products.fit_transform( df5[['q_products']] )\n",
+    "#df5['avg_ticket'] = mm.fit_transform( df5[['avg_ticket']] )\n",
+    "#df5['avg_recency_days'] = mm.fit_transform( df5[['avg_recency_days']] )\n",
+    "df5['frequency'] = mm_frequency.fit_transform( df5[['frequency']] )\n",
+    "df5['q_returns'] = mm_q_returns.fit_transform( df5[['q_returns']] )\n",
+    "#df5['avg_basket_size'] = mm.fit_transform( df5[['avg_basket_size']] )\n",
+    "#df5['avg_unique_basket_size'] = mm.fit_transform( df5[['avg_unique_basket_size']] )"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "58e91773",
+   "metadata": {
+    "papermill": {
+     "duration": 0.007656,
+     "end_time": "2022-11-26T23:17:48.777160",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:48.769504",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "# 7. Feature Selection"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 38,
+   "id": "8e6c0c5f",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2022-11-26T23:17:48.793310Z",
+     "iopub.status.busy": "2022-11-26T23:17:48.793118Z",
+     "iopub.status.idle": "2022-11-26T23:17:48.796055Z",
+     "shell.execute_reply": "2022-11-26T23:17:48.795696Z"
+    },
+    "papermill": {
+     "duration": 0.012299,
+     "end_time": "2022-11-26T23:17:48.797042",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:48.784743",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "df6 = df5.copy()\n",
+    "\n",
+    "df6_umap = df5_umap.copy()\n",
+    "\n",
+    "#df6_tsne = df5_tsne.copy()\n",
+    "\n",
+    "#df6_tree = df5_tree.copy()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b91e5d3d",
+   "metadata": {
+    "papermill": {
+     "duration": 0.012146,
+     "end_time": "2022-11-26T23:17:48.817123",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:48.804977",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "# 8. Hyperparameter Fine Tuning"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 39,
+   "id": "8dc231b2",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2022-11-26T23:17:48.835477Z",
+     "iopub.status.busy": "2022-11-26T23:17:48.835278Z",
+     "iopub.status.idle": "2022-11-26T23:17:48.838260Z",
+     "shell.execute_reply": "2022-11-26T23:17:48.837866Z"
+    },
+    "papermill": {
+     "duration": 0.012911,
+     "end_time": "2022-11-26T23:17:48.839342",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:48.826431",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "#X = df6.copy()\n",
+    "\n",
+    "X_umap = df6_umap.copy()\n",
+    "\n",
+    "#X_tsne = df6_tsne.copy()\n",
+    "\n",
+    "#X_tree = df6_tree.copy()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a044c2b0",
+   "metadata": {
+    "papermill": {
+     "duration": 0.008091,
+     "end_time": "2022-11-26T23:17:48.857675",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:48.849584",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "# 9. Model Training"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8b47f049",
+   "metadata": {
+    "papermill": {
+     "duration": 0.007703,
+     "end_time": "2022-11-26T23:17:48.875470",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:48.867767",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "## 9.1. K-Means UMAP Embedding Space"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 40,
+   "id": "caa47eb1",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2022-11-26T23:17:48.895613Z",
+     "iopub.status.busy": "2022-11-26T23:17:48.895410Z",
+     "iopub.status.idle": "2022-11-26T23:17:51.144535Z",
+     "shell.execute_reply": "2022-11-26T23:17:51.143955Z"
+    },
+    "papermill": {
+     "duration": 2.260353,
+     "end_time": "2022-11-26T23:17:51.145892",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:48.885539",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "# model definition\n",
+    "k = 11\n",
+    "kmeans_umap = c.KMeans(init='random', n_clusters=k, n_init=500, max_iter=300, random_state=42)\n",
+    "\n",
+    "# model training\n",
+    "kmeans_umap.fit(X_umap)\n",
+    "\n",
+    "# clustering\n",
+    "labels_umap_kmeans = kmeans_umap.predict(X_umap)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 41,
+   "id": "c3bda639",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2022-11-26T23:17:51.172255Z",
+     "iopub.status.busy": "2022-11-26T23:17:51.171778Z",
+     "iopub.status.idle": "2022-11-26T23:17:51.853168Z",
+     "shell.execute_reply": "2022-11-26T23:17:51.852669Z"
+    },
+    "papermill": {
+     "duration": 0.698109,
+     "end_time": "2022-11-26T23:17:51.854173",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:51.156064",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "WSS Value: 53153.9375\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "SS Value: 0.5215659141540527\n"
+     ]
+    }
+   ],
+   "source": [
+    "# WSS\n",
+    "print('WSS Value: {}'.format(kmeans_umap.inertia_))\n",
+    "\n",
+    "# SS\n",
+    "print('SS Value: {}'.format(metrics.silhouette_score(X_umap, labels_umap_kmeans, metric='euclidean')))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d950a176",
+   "metadata": {
+    "papermill": {
+     "duration": 0.010234,
+     "end_time": "2022-11-26T23:17:51.872242",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:51.862008",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "# 10. Cluster Analysis"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "afaee340",
+   "metadata": {
+    "papermill": {
+     "duration": 0.007589,
+     "end_time": "2022-11-26T23:17:51.887420",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:51.879831",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "## 10.1. KMeans UMAP Embedding Space"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 42,
+   "id": "2cea1142",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2022-11-26T23:17:51.911276Z",
+     "iopub.status.busy": "2022-11-26T23:17:51.910851Z",
+     "iopub.status.idle": "2022-11-26T23:17:51.915025Z",
+     "shell.execute_reply": "2022-11-26T23:17:51.914353Z"
+    },
+    "papermill": {
+     "duration": 0.02115,
+     "end_time": "2022-11-26T23:17:51.916352",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:51.895202",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "df9_umap_kmeans = X_umap\n",
+    "df9_umap_kmeans['cluster'] = labels_umap_kmeans"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "53478ecb",
+   "metadata": {
+    "papermill": {
+     "duration": 0.011631,
+     "end_time": "2022-11-26T23:17:51.937794",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:51.926163",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "## 10.3. Clusters Profile"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 43,
+   "id": "e3c74bd7",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2022-11-26T23:17:51.957756Z",
+     "iopub.status.busy": "2022-11-26T23:17:51.957537Z",
+     "iopub.status.idle": "2022-11-26T23:17:51.973771Z",
+     "shell.execute_reply": "2022-11-26T23:17:51.973025Z"
+    },
+    "papermill": {
+     "duration": 0.027806,
+     "end_time": "2022-11-26T23:17:51.975039",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:51.947233",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>customer_id</th>\n",
+       "      <th>gross_revenue</th>\n",
+       "      <th>recency_days</th>\n",
+       "      <th>q_products</th>\n",
+       "      <th>frequency</th>\n",
+       "      <th>q_returns</th>\n",
+       "      <th>cluster</th>\n",
+       "      <th>last_training_timestamp</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>17850</td>\n",
+       "      <td>5391.21</td>\n",
+       "      <td>372</td>\n",
+       "      <td>297</td>\n",
+       "      <td>17.000000</td>\n",
+       "      <td>40</td>\n",
+       "      <td>5</td>\n",
+       "      <td>2022-11-26 20:17:51</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>13047</td>\n",
+       "      <td>3232.59</td>\n",
+       "      <td>56</td>\n",
+       "      <td>171</td>\n",
+       "      <td>0.028302</td>\n",
+       "      <td>35</td>\n",
+       "      <td>2</td>\n",
+       "      <td>2022-11-26 20:17:51</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>12583</td>\n",
+       "      <td>6705.38</td>\n",
+       "      <td>2</td>\n",
+       "      <td>232</td>\n",
+       "      <td>0.040323</td>\n",
+       "      <td>50</td>\n",
+       "      <td>1</td>\n",
+       "      <td>2022-11-26 20:17:51</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>13748</td>\n",
+       "      <td>948.25</td>\n",
+       "      <td>95</td>\n",
+       "      <td>28</td>\n",
+       "      <td>0.017921</td>\n",
+       "      <td>0</td>\n",
+       "      <td>3</td>\n",
+       "      <td>2022-11-26 20:17:51</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>15100</td>\n",
+       "      <td>876.00</td>\n",
+       "      <td>333</td>\n",
+       "      <td>3</td>\n",
+       "      <td>0.073171</td>\n",
+       "      <td>22</td>\n",
+       "      <td>4</td>\n",
+       "      <td>2022-11-26 20:17:51</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "   customer_id  gross_revenue  recency_days  q_products  frequency  q_returns  \\\n",
+       "0        17850        5391.21           372         297  17.000000         40   \n",
+       "1        13047        3232.59            56         171   0.028302         35   \n",
+       "2        12583        6705.38             2         232   0.040323         50   \n",
+       "3        13748         948.25            95          28   0.017921          0   \n",
+       "4        15100         876.00           333           3   0.073171         22   \n",
+       "\n",
+       "   cluster last_training_timestamp  \n",
+       "0        5     2022-11-26 20:17:51  \n",
+       "1        2     2022-11-26 20:17:51  \n",
+       "2        1     2022-11-26 20:17:51  \n",
+       "3        3     2022-11-26 20:17:51  \n",
+       "4        4     2022-11-26 20:17:51  "
+      ]
+     },
+     "execution_count": 43,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df9_2 = df4[cols_selected].copy()\n",
+    "df9_2['cluster'] = labels_umap_kmeans\n",
+    "\n",
+    "# change data types\n",
+    "df9_2['cluster'] = df9_2['cluster'].astype('int64')\n",
+    "df9_2['recency_days'] = df9_2['recency_days'].astype('int64')\n",
+    "df9_2['q_products'] = df9_2['q_products'].astype('int64')\n",
+    "df9_2['q_returns'] = df9_2['q_returns'].astype('int64')\n",
+    "\n",
+    "df9_2['last_training_timestamp'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')\n",
+    "\n",
+    "cluster_map = {4:0, 0:1, 6:2, 1:3, 3:4, 10:5, 7:6, 9:7, 5:8, 8:9, 2:10}\n",
+    "df9_2['cluster'] = df9_2['cluster'].map(cluster_map)\n",
+    "\n",
+    "df9_2.head()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 44,
+   "id": "273caf4f",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2022-11-26T23:17:51.993403Z",
+     "iopub.status.busy": "2022-11-26T23:17:51.993221Z",
+     "iopub.status.idle": "2022-11-26T23:17:52.014978Z",
+     "shell.execute_reply": "2022-11-26T23:17:52.014420Z"
+    },
+    "papermill": {
+     "duration": 0.03211,
+     "end_time": "2022-11-26T23:17:52.016156",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:51.984046",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "# number of customers\n",
+    "df_cluster = df9_2[['customer_id', 'cluster']].groupby('cluster').count().reset_index()\n",
+    "df_cluster['perc_customer'] = 100 * (df_cluster['customer_id'] / df_cluster['customer_id'].sum())\n",
+    "\n",
+    "# average gross revenue\n",
+    "df_avg_gross_revenue = df9_2[['gross_revenue', 'cluster']].groupby('cluster').mean().reset_index()\n",
+    "df_cluster = pd.merge(df_cluster, df_avg_gross_revenue, how='inner', on='cluster')\n",
+    "\n",
+    "# average recency days\n",
+    "df_avg_recency_days = df9_2[['recency_days', 'cluster']].groupby('cluster').mean().reset_index()\n",
+    "df_cluster = pd.merge(df_cluster, df_avg_recency_days, how='inner', on='cluster')\n",
+    "\n",
+    "# average invoice number\n",
+    "df_avg_invoice_no = df9_2[['q_products', 'cluster']].groupby('cluster').mean().reset_index()\n",
+    "df_cluster = pd.merge(df_cluster, df_avg_invoice_no, how='inner', on='cluster')\n",
+    "\n",
+    "# average frequency\n",
+    "df_avg_frequency = df9_2[['frequency', 'cluster']].groupby('cluster').mean().reset_index()\n",
+    "df_cluster = pd.merge(df_cluster, df_avg_frequency, how='inner', on='cluster')\n",
+    "\n",
+    "# average returns\n",
+    "df_avg_returns = df9_2[['q_returns', 'cluster']].groupby('cluster').mean().reset_index()\n",
+    "df_cluster = pd.merge(df_cluster, df_avg_returns, how='inner', on='cluster')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 45,
+   "id": "9742afee",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2022-11-26T23:17:52.040244Z",
+     "iopub.status.busy": "2022-11-26T23:17:52.039765Z",
+     "iopub.status.idle": "2022-11-26T23:17:52.048867Z",
+     "shell.execute_reply": "2022-11-26T23:17:52.048482Z"
+    },
+    "papermill": {
+     "duration": 0.025425,
+     "end_time": "2022-11-26T23:17:52.049978",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:52.024553",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>cluster</th>\n",
+       "      <th>customer_id</th>\n",
+       "      <th>perc_customer</th>\n",
+       "      <th>gross_revenue</th>\n",
+       "      <th>recency_days</th>\n",
+       "      <th>q_products</th>\n",
+       "      <th>frequency</th>\n",
+       "      <th>q_returns</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>0</td>\n",
+       "      <td>755</td>\n",
+       "      <td>13.257243</td>\n",
+       "      <td>6260.089298</td>\n",
+       "      <td>11.672848</td>\n",
+       "      <td>241.884768</td>\n",
+       "      <td>0.046377</td>\n",
+       "      <td>76.582781</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>1</td>\n",
+       "      <td>383</td>\n",
+       "      <td>6.725198</td>\n",
+       "      <td>2663.616136</td>\n",
+       "      <td>4.229765</td>\n",
+       "      <td>175.469974</td>\n",
+       "      <td>0.140000</td>\n",
+       "      <td>17.490862</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>2</td>\n",
+       "      <td>836</td>\n",
+       "      <td>14.679543</td>\n",
+       "      <td>1705.616292</td>\n",
+       "      <td>36.602871</td>\n",
+       "      <td>98.068182</td>\n",
+       "      <td>0.030811</td>\n",
+       "      <td>16.688995</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>3</td>\n",
+       "      <td>392</td>\n",
+       "      <td>6.883231</td>\n",
+       "      <td>1164.390612</td>\n",
+       "      <td>100.165816</td>\n",
+       "      <td>61.757653</td>\n",
+       "      <td>0.187623</td>\n",
+       "      <td>8.362245</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>4</td>\n",
+       "      <td>429</td>\n",
+       "      <td>7.532924</td>\n",
+       "      <td>1028.458881</td>\n",
+       "      <td>290.703963</td>\n",
+       "      <td>59.675991</td>\n",
+       "      <td>0.630727</td>\n",
+       "      <td>202.198135</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>5</th>\n",
+       "      <td>5</td>\n",
+       "      <td>277</td>\n",
+       "      <td>4.863916</td>\n",
+       "      <td>906.624801</td>\n",
+       "      <td>362.581227</td>\n",
+       "      <td>65.126354</td>\n",
+       "      <td>1.051473</td>\n",
+       "      <td>2.472924</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>6</th>\n",
+       "      <td>6</td>\n",
+       "      <td>586</td>\n",
+       "      <td>10.289728</td>\n",
+       "      <td>861.548140</td>\n",
+       "      <td>35.119454</td>\n",
+       "      <td>44.726962</td>\n",
+       "      <td>0.712406</td>\n",
+       "      <td>3.452218</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>7</th>\n",
+       "      <td>7</td>\n",
+       "      <td>595</td>\n",
+       "      <td>10.447761</td>\n",
+       "      <td>774.428504</td>\n",
+       "      <td>135.126050</td>\n",
+       "      <td>65.057143</td>\n",
+       "      <td>0.766010</td>\n",
+       "      <td>3.692437</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>8</th>\n",
+       "      <td>8</td>\n",
+       "      <td>391</td>\n",
+       "      <td>6.865672</td>\n",
+       "      <td>647.621893</td>\n",
+       "      <td>199.107417</td>\n",
+       "      <td>47.230179</td>\n",
+       "      <td>1.023018</td>\n",
+       "      <td>2.447570</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>9</th>\n",
+       "      <td>9</td>\n",
+       "      <td>408</td>\n",
+       "      <td>7.164179</td>\n",
+       "      <td>606.151887</td>\n",
+       "      <td>56.230392</td>\n",
+       "      <td>46.142157</td>\n",
+       "      <td>1.073063</td>\n",
+       "      <td>6.595588</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>10</th>\n",
+       "      <td>10</td>\n",
+       "      <td>643</td>\n",
+       "      <td>11.290606</td>\n",
+       "      <td>492.876174</td>\n",
+       "      <td>246.793157</td>\n",
+       "      <td>39.611198</td>\n",
+       "      <td>1.020218</td>\n",
+       "      <td>1.598756</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "    cluster  customer_id  perc_customer  gross_revenue  recency_days  \\\n",
+       "0         0          755      13.257243    6260.089298     11.672848   \n",
+       "1         1          383       6.725198    2663.616136      4.229765   \n",
+       "2         2          836      14.679543    1705.616292     36.602871   \n",
+       "3         3          392       6.883231    1164.390612    100.165816   \n",
+       "4         4          429       7.532924    1028.458881    290.703963   \n",
+       "5         5          277       4.863916     906.624801    362.581227   \n",
+       "6         6          586      10.289728     861.548140     35.119454   \n",
+       "7         7          595      10.447761     774.428504    135.126050   \n",
+       "8         8          391       6.865672     647.621893    199.107417   \n",
+       "9         9          408       7.164179     606.151887     56.230392   \n",
+       "10       10          643      11.290606     492.876174    246.793157   \n",
+       "\n",
+       "    q_products  frequency   q_returns  \n",
+       "0   241.884768   0.046377   76.582781  \n",
+       "1   175.469974   0.140000   17.490862  \n",
+       "2    98.068182   0.030811   16.688995  \n",
+       "3    61.757653   0.187623    8.362245  \n",
+       "4    59.675991   0.630727  202.198135  \n",
+       "5    65.126354   1.051473    2.472924  \n",
+       "6    44.726962   0.712406    3.452218  \n",
+       "7    65.057143   0.766010    3.692437  \n",
+       "8    47.230179   1.023018    2.447570  \n",
+       "9    46.142157   1.073063    6.595588  \n",
+       "10   39.611198   1.020218    1.598756  "
+      ]
+     },
+     "execution_count": 45,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df_cluster.sort_values('gross_revenue', ascending=False)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "cba68c86",
+   "metadata": {
+    "papermill": {
+     "duration": 0.008247,
+     "end_time": "2022-11-26T23:17:52.066824",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:52.058577",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "# 12. Deployment"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 46,
+   "id": "7ee9458e",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2022-11-26T23:17:52.084598Z",
+     "iopub.status.busy": "2022-11-26T23:17:52.084355Z",
+     "iopub.status.idle": "2022-11-26T23:17:52.088499Z",
+     "shell.execute_reply": "2022-11-26T23:17:52.088141Z"
+    },
+    "papermill": {
+     "duration": 0.014362,
+     "end_time": "2022-11-26T23:17:52.089509",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:52.075147",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "customer_id                  int64\n",
+       "gross_revenue              float64\n",
+       "recency_days                 int64\n",
+       "q_products                   int64\n",
+       "frequency                  float64\n",
+       "q_returns                    int64\n",
+       "cluster                      int64\n",
+       "last_training_timestamp     object\n",
+       "dtype: object"
+      ]
+     },
+     "execution_count": 46,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df9_2.dtypes"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "88f636f1",
+   "metadata": {
+    "papermill": {
+     "duration": 0.0083,
+     "end_time": "2022-11-26T23:17:52.106284",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:52.097984",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "## 12.1. Insert Into SQLite"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 47,
+   "id": "eb06f16a",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2022-11-26T23:17:52.123815Z",
+     "iopub.status.busy": "2022-11-26T23:17:52.123574Z",
+     "iopub.status.idle": "2022-11-26T23:17:52.180114Z",
+     "shell.execute_reply": "2022-11-26T23:17:52.179728Z"
+    },
+    "papermill": {
+     "duration": 0.066577,
+     "end_time": "2022-11-26T23:17:52.181147",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:52.114570",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "5695"
+      ]
+     },
+     "execution_count": 47,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# database connection\n",
+    "path_database = 'sqlite:///' + path + 'database/loyalty_program'\n",
+    "conn = create_engine(path_database)\n",
+    "\n",
+    "# drop table\n",
+    "query_drop_table_loyalty_program = \"\"\"\n",
+    "    DROP TABLE loyalty_program\n",
+    "\"\"\"\n",
+    "\n",
+    "# create table\n",
+    "query_create_table_loyalty_program = \"\"\"\n",
+    "    CREATE TABLE loyalty_program(\n",
+    "        customer_id INTEGER,\n",
+    "        gross_revenue REAL,\n",
+    "        recency_days INTEGER,\n",
+    "        q_products INTEGER,\n",
+    "        frequency REAL,\n",
+    "        q_returns INTEGER,\n",
+    "        cluster INTEGER\n",
+    "    )\n",
+    "\"\"\"\n",
+    "\n",
+    "conn.execute(query_drop_table_loyalty_program)\n",
+    "\n",
+    "# insert data\n",
+    "df9_2.to_sql('loyalty_program', con=conn, if_exists='append', index=False)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 48,
+   "id": "8582bba8",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2022-11-26T23:17:52.205368Z",
+     "iopub.status.busy": "2022-11-26T23:17:52.204929Z",
+     "iopub.status.idle": "2022-11-26T23:17:52.239696Z",
+     "shell.execute_reply": "2022-11-26T23:17:52.239152Z"
+    },
+    "papermill": {
+     "duration": 0.050823,
+     "end_time": "2022-11-26T23:17:52.240774",
+     "exception": false,
+     "start_time": "2022-11-26T23:17:52.189951",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>customer_id</th>\n",
+       "      <th>gross_revenue</th>\n",
+       "      <th>recency_days</th>\n",
+       "      <th>q_products</th>\n",
+       "      <th>frequency</th>\n",
+       "      <th>q_returns</th>\n",
+       "      <th>cluster</th>\n",
+       "      <th>last_training_timestamp</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>17850</td>\n",
+       "      <td>5391.21</td>\n",
+       "      <td>372</td>\n",
+       "      <td>297</td>\n",
+       "      <td>17.000000</td>\n",
+       "      <td>40</td>\n",
+       "      <td>5</td>\n",
+       "      <td>2022-11-26 20:17:51</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>13047</td>\n",
+       "      <td>3232.59</td>\n",
+       "      <td>56</td>\n",
+       "      <td>171</td>\n",
+       "      <td>0.028302</td>\n",
+       "      <td>35</td>\n",
+       "      <td>2</td>\n",
+       "      <td>2022-11-26 20:17:51</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>12583</td>\n",
+       "      <td>6705.38</td>\n",
+       "      <td>2</td>\n",
+       "      <td>232</td>\n",
+       "      <td>0.040323</td>\n",
+       "      <td>50</td>\n",
+       "      <td>1</td>\n",
+       "      <td>2022-11-26 20:17:51</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>13748</td>\n",
+       "      <td>948.25</td>\n",
+       "      <td>95</td>\n",
+       "      <td>28</td>\n",
+       "      <td>0.017921</td>\n",
+       "      <td>0</td>\n",
+       "      <td>3</td>\n",
+       "      <td>2022-11-26 20:17:51</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>15100</td>\n",
+       "      <td>876.00</td>\n",
+       "      <td>333</td>\n",
+       "      <td>3</td>\n",
+       "      <td>0.073171</td>\n",
+       "      <td>22</td>\n",
+       "      <td>4</td>\n",
+       "      <td>2022-11-26 20:17:51</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "   customer_id  gross_revenue  recency_days  q_products  frequency  q_returns  \\\n",
+       "0        17850        5391.21           372         297  17.000000         40   \n",
+       "1        13047        3232.59            56         171   0.028302         35   \n",
+       "2        12583        6705.38             2         232   0.040323         50   \n",
+       "3        13748         948.25            95          28   0.017921          0   \n",
+       "4        15100         876.00           333           3   0.073171         22   \n",
+       "\n",
+       "   cluster last_training_timestamp  \n",
+       "0        5     2022-11-26 20:17:51  \n",
+       "1        2     2022-11-26 20:17:51  \n",
+       "2        1     2022-11-26 20:17:51  \n",
+       "3        3     2022-11-26 20:17:51  \n",
+       "4        4     2022-11-26 20:17:51  "
+      ]
+     },
+     "execution_count": 48,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "query_all_data = \"\"\"\n",
+    "    SELECT * FROM loyalty_program lp\n",
+    "\"\"\"\n",
+    "\n",
+    "df = pd.read_sql_query(query_all_data, conn)\n",
+    "\n",
+    "df.head()"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3.9.13 ('loyalty-program')",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.9.13"
+  },
+  "papermill": {
+   "default_parameters": {},
+   "duration": 43.780084,
+   "end_time": "2022-11-26T23:17:52.865338",
+   "environment_variables": {},
+   "exception": null,
+   "input_path": "notebooks/clustering_c9_deploy.ipynb",
+   "output_path": "filename",
+   "parameters": {},
+   "start_time": "2022-11-26T23:17:09.085254",
+   "version": "2.4.0"
+  },
+  "vscode": {
+   "interpreter": {
+    "hash": "956b1d11d7f4c6dd4db31a5303c4e7d4371cf7a7b08ae68b3d3b1c47108e5d66"
+   }
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
