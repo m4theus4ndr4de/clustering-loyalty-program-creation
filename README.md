@@ -68,3 +68,4 @@ My strategy to solve this challenge was:
 
 RDS - database
 S3 - bucket
+EC2 - cloud computing
