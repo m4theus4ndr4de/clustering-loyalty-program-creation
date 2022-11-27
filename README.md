@@ -52,7 +52,7 @@ My strategy to solve this challenge was:
 
 # 5. Machine Learning Model Applied
 
-# 6. Machine Learning Modelo Performance
+# 6. Machine Learning Model Performance
 
 # 7. Business Results
 
@@ -65,3 +65,6 @@ My strategy to solve this challenge was:
 # LICENSE
 
 # All Rights Reserved - Comunidade DS 2021
+
+RDS - database
+S3 - bucket
