@@ -17,12 +17,14 @@ The dataset is available on <a href="https://www.kaggle.com/code/cheekonglim/uk-
 
 <table style="width:100%">
 <tr><th>Attribute</th><th>Description</th></tr>
-<tr><td></td><td></td></tr>
-<tr><td></td><td></td></tr>
-<tr><td></td><td></td></tr>
-<tr><td></td><td></td></tr>
-<tr><td></td><td></td></tr>
-<tr><td></td><td></td></tr>
+<tr><td>InvoiceNo</td><td>Number of purchase invoice.</td></tr>
+<tr><td>StockCode</td><td>Code of the stock the object comes from.</td></tr>
+<tr><td>Description</td><td>Description of the item purchased.</td></tr>
+<tr><td>Quantity</td><td>Quantity of the item purchased.</td></tr>
+<tr><td>InvoiceDate</td><td>Date of the invoice.</td></tr>
+<tr><td>UnitPrice</td><td>Price of one item of the object purchased.</td></tr>
+<tr><td>CustomerID</td><td>Identification number of the client responsible for the purchase.</td></tr>
+<tr><td>Country</td><td>The country the purchase comes from.</td></tr>
 </table>
 
 <h2>3. Business Premises</h2>
@@ -30,17 +32,16 @@ The dataset is available on <a href="https://www.kaggle.com/code/cheekonglim/uk-
 <h3>The premises that were assumed for the development of the business problem solution are:</h3>
 
 <ul>
-<li>The model will be available on Github, so the model file has to be smaller than 50 Mb.</li>
-<li>Extra assortment is greater tha extended and basic.</li>
-<li>Stores that have no competitors in the dataset (CompetitionDIstance and CompetitionOpenSince[Month/Year] not available) were interpreted as stores that have no competitors near them.</li>
-<li>The number 200000 was considered as a good one to replace the NA values on the column CompetitionDistance for stores with no competitors meaning that the nearest competitor is very far.</li>
+<li></li>
+<li></li>
+<li></li>
 </ul>
 
 <h2>4. Solution Strategy</h2>
 
 <ol>
 <li>Understand the Business problem.</li>
-<li>Download the dataset from <a href="https://www.kaggle.com/code/cheekonglim/uk-high-value-customers-identification/notebook" target="_blank">Kaggle</a>.</li>
+<li>Download the dataset.</li>
 <li>Clean the dataset removing outliers, NA values and unnecessary features.</li>
 <li>Explore the data to create hypothesis, think about a few insights and validate them.</li>
 <li>Prepare the data to be used by the modeling algorithms encoding variables, splitting train and test dataset and other necessary operations.</li>
