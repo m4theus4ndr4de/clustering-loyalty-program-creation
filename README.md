@@ -7,7 +7,7 @@ The dataset is available on <a href="https://www.kaggle.com/code/cheekonglim/uk-
 
 <h2>1. Description of the Business Problem</h2>
 
-<p align="justify">Os líderes do time de negócio de uma empresa de e-commerce concluiu que uma boa estratégia para alavancar as vendas é a criação de um programa de fidelidade para seus clientes. Então, solicitaram para o time de dados que eles selecionassem os clientes mais valiosos para a empresa buscando avaliar recency, frequency and monetary aspects.</p>
+<p align="justify">The business leaders of an e-commerce company concluded that a good strategy to leverage sales is to create a loyalty program for their customers. So, the business team asked the data scientists to select the most valuable customers for the company Recency, frequency and monetary aspects were considered by the business team as the main characterists to evaluate the customers in clusters.</p>
 
 <h3>The tools that were created:</h3>
 
@@ -43,53 +43,39 @@ The dataset is available on <a href="https://www.kaggle.com/code/cheekonglim/uk-
 <li>Understand the Business problem.</li>
 <li>Download the dataset.</li>
 <li>Clean the dataset removing outliers, NA values and unnecessary features.</li>
-<li>Explore the data to create hypothesis, think about a few insights and validate them.</li>
 <li>Prepare the data to be used by the modeling algorithms encoding variables, splitting train and test dataset and other necessary operations.</li>
 <li>Create the models using machine learning algorithms.</li>
-<li>Evaluate the created models to find the one that best fits to your problem.</li>
+<li>Evaluate the created models to find the one that best fits to the problem.</li>
 <li>Tune the model to achieve a better performance.</li>
+<li>Explore the data to create hypothesis, think about a few insights and validate them.</li>
 <li>Deploy the model in production so that it is available to the user.</li>
 <li>Find possible improvements to be explored in the future.</li>
 </ol>
 
 <h2>5. The Insights</h2>
 
-<p><b>I1:</b> Stores with greater assortments should sell more.</p>
-<p><b>True:</b> Stores with greater assortment sell more.</p>
-<p><b>I2:</b> Stores with closer competitors should sell less.</p>
-<p><b>False:</b> Stores with closer competitors sells almost the same average amount than the others.</p>
-<p><b>I3:</b> Stores that have a competitor for longer periods of time should sell more.</p>
-<p><b>False:</b> Stores with competitors for a longer time sell less.</p>
-<p><b>I4:</b> Stores with longer active promotions should sell more.</p>
-<p><b>False:</b> Store with longer promotions stop selling more after some time.</p>
-<p><b>I5:</b> Stores with more consecutive promotions should sell more.</p>
-<p><b>False:</b> Stores with more consecutive promotions sell less.</p>
-<p><b>I6:</b> Stores open during the Christmas holiday should sell more.</p>
-<p><b>False:</b> Stores open during Christmas don't sell more.</p>
-<p><b>I7:</b> Stores should sell more over the years.</p>
-<p><b>False:</b> Stores sell less over the years.</p>
-<p><b>I8:</b> Stores should sell more in the second half of the year.</p>
-<p><b>True:</b> The stores sell more in the second half of the year.</p>
-<p><b>I9:</b> Stores should sell more after the 10th of each month.</p>
-<p><b>True:</b> Stores really sell more after the 10th day of each month.</p>
-<p><b>I10:</b> Stores should sell less on weekends.</p>
-<p><b>True:</b> Saturday and Sun are the worst seling days.</p>
-<p><b>I11:</b> Stores should sell less during school holidays.</p>
-<p><b>True:</b> Stores sellless during school holiday except for the august.</p>
+<p><b>I1:</b> The customers of the loyalty program have a purchase volume (products) above 10% of the total purchases.</p>
+<p><b>True:</b> The loyalty program cluster has 34% of the total products purchased.</p>
+<p><b>I2:</b> The customers of the loyalty program have a volume (revenue) of purchases above 10% of the total purchases.</p>
+<p><b>True:</b> The loyalty program cluster has 46% of the total profit.</p>
+<p><b>I3:</b> Loyalty program customers have a lower number of returns than the average of the other customers.</p>
+<p><b>False:</b> Loyalty program cluster has an average quantity of retuns above the average of the other customers.</p>
+<p><b>I4:</b> The median billing by loyalty program customers is 10% higher than the median billing overall.</p>
+<p><b>True:</b> The median of the profit from the loyalty program cluster is 215% above the overall median.</p>
+<p><b>I5:</b> Loyalty program customers are on the third quantile.</p>
+<p><b>False:</b> They are mostly in the first quantile.</p>
 
 <h2>6. Machine Learning Modeling</h2>
 
-<p align="justify">The final result of this project is a regression model. Therefore, some machine learning models were created. In all, 5 models were created, one of them is a simple model that calculates the average sales to serve as a comparison with machine learning models. The other models initially created were Linear Regression, Regularized Linear Regression, Random Forest and XGBoost.</p>
+<p align="justify">The final result of this project is a clustering model. A few dimensionality reduction algorithms, like PCA (Principal COmponent Analysis), UMAP (Uniform Manifold Approximation and Projection) and t-SNE (Distributed Stochastic Neighbor Embedding) were used to create embedding spaces as alternatives for the features space. Some machine learning modelling algorithms were also used as options to find the best possible model. In all, 3 types of model were created, k-Means, GMM (Gaussian MNixture Model) and HC (Hierarchical Clustering).</p>
 
-<p align="justify">The Boruta algorithm was used to select features for the model and 18 features were selected to the final model. The models were evaluated considering three metrics, Mean Absolute Error (MAE), Mean Absolute Percentage Error (MAPE) and Root Mean Squared Error (RMSE). The initial models performances are in the table below.</p>
+<p align="justify"></p>
 
 <table style="width:100%">
-<tr><th>Model Name</th><th>MAE</th><th>MAPE</th><th>RMSE</th></tr>
-<tr><td>Random Forest Regressor</td><td>680.19</td><td>0.10</td><td>1008.96</td></tr>
-<tr><td>XGBoost Regressor</td><td>874.26</td><td>0.13</td><td>1256.33</td></tr>
-<tr><td>Average Model</td><td>1354.80</td><td>0.46</td><td>1835.14</td></tr>
-<tr><td>Linear Regression</td><td>1867.09</td><td>0.29</td><td>2671.05</td></tr>
-<tr><td>Lasso</td><td>2198.58</td><td>0.34</td><td>3110.51</td></tr>
+<tr><th>Model Name</th><th></th><th></th><th></th></tr>
+<tr><th></th><th></th><th></th><th></th></tr>
+<tr><th></th><th></th><th></th><th></th></tr>
+<tr><th></th><th></th><th></th><th></th></tr>
 </table>
 
 <h2>7. Final Model</h2>
@@ -97,36 +83,28 @@ The dataset is available on <a href="https://www.kaggle.com/code/cheekonglim/uk-
 <p align="justify">To decide which would be the final model, a cross-validation was carried out to evaluate the performance of the algorithms in a more robust way. These metrics are represented in the table below.</p>
 
 <table style="width:100%">
-<tr><th>Model Name</th><th>MAE</th><th>MAPE</th><th>RMSE</th></tr>
-<tr><td>Random Forest Regressor</td><td>837.52 +/- 216.76</td><td>0.12 +/- 0.02</td><td>1254.42 +/- 316.65</td></tr>
-<tr><td>XGBoost Regressor</td><td>1069.47 +/- 139.48</td><td>0.15 +/- 0.02</td><td>1523.41 +/- 182.76</td></tr>
-<tr><td>Linear Regression</td><td>2081.73 +/- 295.63</td><td>0.3 +/- 0.02</td><td>2952.52 +/- 468.37</td></tr>
-<tr><td>Lasso</td><td>2388.68 +/- 398.48</td><td>0.34 +/- 0.01</td><td>3369.37 +/- 567.55</td></tr>
+<tr><th>Model Name</th><th></th><th></th><th></th></tr>
+<tr><th></th><th></th><th></th><th></th></tr>
+<tr><th></th><th></th><th></th><th></th></tr>
+<tr><th></th><th></th><th></th><th></th></tr>
 </table>
 
-<p align="justify">The Random Forest model was the best among all the models created. However, XGBoost was chosen to be deployed because it tends to take up less disk space than Random Forest. After choosing which would be the final model, a random search hyperparameter optimization was used to improve the performance of the model. The final model evaluation metrics are in the table below.</p>
+<p align="justify"></p>
 
 <table style="width:100%">
 <tr><th>Model Name</th><th>MAE</th><th>MAPE</th><th>RMSE</th></tr>
-<tr><td>XGBoost Regressor</td><td>653.39</td><td>0.10</td><td>956.03</td></tr>
+<tr><th></th><th></th><th></th><th></th></tr>
 </table>
 
 <h2>8. Conclusion</h2>
 
-<p align="justify">The XGBoost prediction model was chosen because it can be trained faster than a Random Forest model using a GPU. The model used in deployment was not the best one, but it is considerably smaller than the others, because it has a smaller number of estimators, and the error metrics are not so distant from the best model. A chat bot that answears the income for the next 6 weeks was also developed to work like a hands on tool. Now, the CEO can have access easily to the income of each store by simple sending a message to the chat bot.</p>
+<p align="justify"></p>
 
 <h2>9. Future Work</h2>
 
 <ul>
-<li>Develop some more features to the bot.</li>
-<li>Create an options menu to the Telegram Bot.</li>
-<li>Develop a model to determine the profit of the next day, month and year.</li>
-<li>Improve model prediction capabilities by adding new features.</li>
-<li>Search for stores with a high prediction error and find a way to enhance the predition of them.</li>
-<li>Try other machine learning algorithms.</li>
+<li></li>
+<li></li>
+<li></li>
+<li></li>
 </ul>
-
-
-RDS - database
-S3 - bucket
-EC2 - cloud computing
