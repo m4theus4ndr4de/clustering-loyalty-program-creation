@@ -1,6 +1,6 @@
 <img src="images/loyalty_program.png" alt="logo" style="zoom:100%;" />
 
-<h1>Loyalty Program Criation</h1>
+<h1>Loyalty Program Creation</h1>
 
 <p align="justify">This is a fictional project for studying purposes. The business context and the insights are not real. 
 The dataset is available on <a href="https://www.kaggle.com/code/cheekonglim/uk-high-value-customers-identification/notebook" target="_blank">Kaggle</a>.</p>
